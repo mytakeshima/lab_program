@@ -56,7 +56,7 @@ precip_times = datetime.empty;
 
 for t = 0:num_time_steps-1
     xrain_time = time_start + t * time_step;
-    xrain_file = fullfile('C:\Users\murqk\Desktop\XRAIN\10mn\07', ...
+    xrain_file = fullfile('C:\Users\murqk\Desktop\XRAIN\60mn\07', ...
         sprintf('202407%02d-%02d00.csv', day(xrain_time), hour(xrain_time)));
     
     if ~exist(xrain_file, 'file')
@@ -92,6 +92,7 @@ plot(precip_times, precip_volume_avg, '-r', 'LineWidth', 1.5);
 ylabel('降水量（m³）');
 xlabel('時間 (JST)');
 title('CAPEおよび降水量の時系列');
+legend('CAPE','降水量');
 grid on;
 
 % サブプロット2: 比湿
