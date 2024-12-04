@@ -13,10 +13,10 @@ mapshow(S, 'EdgeColor', 'black'); % 地図の境界線を黒色で描画
 hold on;
 
 % 指定した範囲（例：緯度・経度の範囲を設定）
-lat_min = 36.9; % 最小緯度
-lat_max = 37.5; % 最大緯度
-lon_min = 136.6; % 最小経度
-lon_max = 137.2; % 最大経度
+lat_min = 36.7; % 最小緯度
+lat_max = 37.7; % 最大緯度
+lon_min = 136.4; % 最小経度
+lon_max = 137.4; % 最大経度
 
 % 赤い枠を描画
 plot([lon_min, lon_max, lon_max, lon_min, lon_min], ...
