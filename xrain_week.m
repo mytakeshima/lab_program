@@ -15,7 +15,7 @@ Data = [];
 %% 本編
 
 % xrainのデータディレクトリを指定（変更）
-dir = 'C:\Users\murqk\Desktop\XRAIN\10mn\07\';
+dir = 'C:\Users\murqk\Desktop\XRAIN山形\60mn\07\';
 
 S = shaperead("C:\Users\murqk\Desktop\EN\JPN_adm1.shp");
 
@@ -51,17 +51,28 @@ Rtable = table('Size', [0, 9], 'VariableTypes', {'datetime','double', 'double','
 
 
 % プログラム開始（変更）
-for xrain_day = 25:26
+% ファイルがない時間があるのでエラーの可能性あり
+for xrain_day = 20:29
     for xrain_hr = 0:23  % XRAINデータの時刻指定JST（変更）
         xrain_day_str = num2str(xrain_day, '%02d');
         xrain_h_str = num2str(xrain_hr, '%02d');
 
-        % ファイル名を指定
-        xrain_file = strcat('202407', xrain_day_str, '-', xrain_h_str, '00.csv'); 
-        xrain_path = fullfile(dir, xrain_file);
+        xrain_file = fullfile('C:\Users\murqk\Desktop\XRAIN山形\60mn\07', ...
+        sprintf('202407%02d-%02d00.csv', xrain_day, xrain_hr));
+    
+    if ~exist(xrain_file, 'file')
+        fprintf('File %s does not exist. Skipping...\n', xrain_file);
+        continue;
+    end
+
+        % % ファイル名を指定
+        % xrain_file = strcat('202407', xrain_day_str, '-', xrain_h_str, '00.csv'); 
+        % xrain_path = fullfile(dir, xrain_file);
+
+        %xrain_path = fullfile(dir, xrain_file);
 
         % CSVファイルの読み込み
-        data = readmatrix(xrain_path);
+        data = readmatrix(xrain_file);
 
         figure;
         hold on;
