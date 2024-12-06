@@ -1,3 +1,4 @@
+
 % 必要なデータの読み込み (既存プログラムに基づく前処理が済んでいることを前提)
 
 % 必要なデータの読み込み
@@ -113,32 +114,53 @@ dls_common = dls_avg(idx_other);
 [corr_dls, lags_dls] = xcorr(precip_common - mean(precip_common), ...
                              dls_common - mean(dls_common), 'coeff');
 
-% 相互相関プロット
+
+
+
+
+
+
+% 相関係数が最も高いタイムラグのインデックスを求める
+[~, max_idx_cape] = max(abs(corr_cape));
+[~, max_idx_q] = max(abs(corr_q));
+[~, max_idx_dls] = max(abs(corr_dls));
+
+% 最も高い相関のタイムラグを取得
+lag_cape = lags_cape(max_idx_cape);
+lag_q = lags_q(max_idx_q);
+lag_dls = lags_dls(max_idx_dls);
+
+% データをタイムラグに応じてシフト
+precip_shifted_cape = circshift(precip_common, -lag_cape);
+precip_shifted_q = circshift(precip_common, -lag_q);
+precip_shifted_dls = circshift(precip_common, -lag_dls);
+
+% 散布図プロット
 figure;
 
 % CAPEと降水量
 subplot(3, 1, 1);
-plot(-lags_cape, corr_cape, '-b', 'LineWidth', 1.5);
-xlabel('タイムラグ (時間ステップ)');
-ylabel('相関係数');
-title('降水量とCAPEの相互相関');
+scatter(cape_common, precip_shifted_cape, 'b', 'filled');
+xlabel('CAPE');
+ylabel('降水量');
+title(sprintf('降水量とCAPEの散布図 (タイムラグ: %d)', lag_cape));
 grid on;
 
 % 比湿と降水量
 subplot(3, 1, 2);
-plot(-lags_q, corr_q, '-g', 'LineWidth', 1.5);
-xlabel('タイムラグ (時間ステップ)');
-ylabel('相関係数');
-title('降水量と比湿の相互相関');
+scatter(q_common, precip_shifted_q, 'g', 'filled');
+xlabel('比湿');
+ylabel('降水量');
+title(sprintf('降水量と比湿の散布図 (タイムラグ: %d)', lag_q));
 grid on;
 
 % DLSと降水量
 subplot(3, 1, 3);
-plot(-lags_dls, corr_dls, '-m', 'LineWidth', 1.5);
-xlabel('タイムラグ (時間ステップ)');
-ylabel('相関係数');
-title('降水量とDLSの相互相関');
+scatter(dls_common, precip_shifted_dls, 'm', 'filled');
+xlabel('DLS');
+ylabel('降水量');
+title(sprintf('降水量とDLSの散布図 (タイムラグ: %d)', lag_dls));
 grid on;
 
 % プロットの保存
-saveas(gcf, fullfile('C:\Users\murqk\Desktop\plot\plot\2024山形線状降水帯', '相互相関プロット.png'));
+saveas(gcf, fullfile('C:\Users\murqk\Desktop\plot\plot\2024山形線状降水帯', '散布図プロット.png'));
