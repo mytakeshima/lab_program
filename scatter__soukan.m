@@ -135,6 +135,46 @@ precip_shifted_cape = circshift(precip_common, -lag_cape);
 precip_shifted_q = circshift(precip_common, -lag_q);
 precip_shifted_dls = circshift(precip_common, -lag_dls);
 
+
+
+% CAPEと降水量の上位10点
+[sorted_values_cape, sorted_indices_cape] = sort(abs(cape_common - mean(cape_common)) .* abs(precip_shifted_cape - mean(precip_shifted_cape)), 'descend');
+top_10_indices_cape = sorted_indices_cape(1:10);
+top_10_times_cape = common_times(top_10_indices_cape);
+
+% 比湿と降水量の上位10点
+[sorted_values_q, sorted_indices_q] = sort(abs(q_common - mean(q_common)) .* abs(precip_shifted_q - mean(precip_shifted_q)), 'descend');
+top_10_indices_q = sorted_indices_q(1:10);
+top_10_times_q = common_times(top_10_indices_q);
+
+% DLSと降水量の上位10点
+[sorted_values_dls, sorted_indices_dls] = sort(abs(dls_common - mean(dls_common)) .* abs(precip_shifted_dls - mean(precip_shifted_dls)), 'descend');
+top_10_indices_dls = sorted_indices_dls(1:10);
+top_10_times_dls = common_times(top_10_indices_dls);
+
+% 結果の表示
+fprintf('CAPEと降水量の相関に寄与する上位10点の時刻:\n');
+for i = 1:10
+    fprintf('%d: %s\n', i, datestr(top_10_times_cape(i)));
+end
+
+fprintf('\n比湿と降水量の相関に寄与する上位10点の時刻:\n');
+for i = 1:10
+    fprintf('%d: %s\n', i, datestr(top_10_times_q(i)));
+end
+
+fprintf('\nDLSと降水量の相関に寄与する上位10点の時刻:\n');
+for i = 1:10
+    fprintf('%d: %s\n', i, datestr(top_10_times_dls(i)));
+end
+
+
+
+
+
+
+
+
 % 散布図プロット
 figure;
 
@@ -143,7 +183,8 @@ subplot(3, 1, 1);
 scatter(cape_common, precip_shifted_cape, 'b', 'filled');
 xlabel('CAPE');
 ylabel('降水量');
-title(sprintf('降水量とCAPEの散布図 (タイムラグ: %d)', lag_cape));
+title(sprintf('降水量とCAPEの散布図 (タイムラグ: %d, 相関係数: %.2f)', ...
+    -lag_cape, corr_cape(max_idx_cape)));
 grid on;
 
 % 比湿と降水量
@@ -151,7 +192,8 @@ subplot(3, 1, 2);
 scatter(q_common, precip_shifted_q, 'g', 'filled');
 xlabel('比湿');
 ylabel('降水量');
-title(sprintf('降水量と比湿の散布図 (タイムラグ: %d)', lag_q));
+title(sprintf('降水量と比湿の散布図 (タイムラグ: %d, 相関係数: %.2f)', ...
+    -lag_q, corr_q(max_idx_q)));
 grid on;
 
 % DLSと降水量
@@ -159,8 +201,10 @@ subplot(3, 1, 3);
 scatter(dls_common, precip_shifted_dls, 'm', 'filled');
 xlabel('DLS');
 ylabel('降水量');
-title(sprintf('降水量とDLSの散布図 (タイムラグ: %d)', lag_dls));
+title(sprintf('降水量とDLSの散布図 (タイムラグ: %d, 相関係数: %.2f)', ...
+    -lag_dls, corr_dls(max_idx_dls)));
 grid on;
+
 
 % プロットの保存
 saveas(gcf, fullfile('C:\Users\murqk\Desktop\plot\plot\2024山形線状降水帯', '散布図プロット.png'));
