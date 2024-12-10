@@ -26,9 +26,9 @@ time_axis = time_start + (0:num_time_steps-1) * time_step;
 
 % 緯度・経度の範囲設定
 lat_target = 39; % 中心緯度
-lon_target = 140; % 中心経度
-lat_range = [lat_target - 0.5, lat_target + 0.5];
-lon_range = [lon_target - 0.5, lon_target + 0.5];
+lon_target = 140.5; % 中心経度
+lat_range = [lat_target - 2.0, lat_target + 2.0];
+lon_range = [lon_target - 1.5, lon_target + 1.5];
 
 % 比湿範囲インデックス
 lat_idx_q = find(lat_q >= lat_range(1) & lat_q <= lat_range(2));
@@ -50,9 +50,14 @@ v_1000 = v_data(lon_idx_q, lat_idx_q, level_1000hpa_idx, :);
 dls = sqrt((u_500 - u_1000).^2 + (v_500 - v_1000).^2); % 深層シアー
 dls_avg = squeeze(mean(mean(dls, 1), 2));
 
+
 % 降水量計算
 precip_volume_avg = [];
 precip_times = datetime.empty;
+
+% 緯度経度の範囲
+target_lat_range = [37, 41]; % 中心緯度 ± 0.5
+target_lon_range = [139, 142]; % 中心経度 ± 0.5
 
 for t = 0:num_time_steps-1
     xrain_time = time_start + t * time_step;
@@ -64,20 +69,75 @@ for t = 0:num_time_steps-1
         continue;
     end
     
+    % CSVからデータ読み込み
     data = readmatrix(xrain_file);
-    valid_data = data(data >= 0);
+    
+    % 緯度経度の生成
+    latitudes = linspace(41, 37, 480);  % 北から南へ
+    longitudes = linspace(139, 142, 320); % 西から東へ
+    
+    % 対象範囲内のデータのみを抽出
+    lat_indices = find(latitudes >= target_lat_range(1) & latitudes <= target_lat_range(2));
+    lon_indices = find(longitudes >= target_lon_range(1) & longitudes <= target_lon_range(2));
+    
+    % 範囲内のデータ抽出
+    valid_data = data(lat_indices, lon_indices);
+    valid_data = valid_data(valid_data >= 0); % 0以上のデータのみ扱う
     
     if isempty(valid_data)
         fprintf('No valid data in file %s. Skipping...\n', xrain_file);
         continue;
     end
     
-    valid_data_m = valid_data / 1000;
-    valid_volume = valid_data_m * (250 * 250); % 体積[m³]
+    % 体積計算
+    valid_volume = valid_data / 1000 * (250 * 250); % 体積[m³]
     
+    % 平均降水量計算
     precip_volume_avg(end+1) = mean(valid_volume);
     precip_times(end+1) = xrain_time;
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+% % %  ファイルの内容すべてについて平均をとる方
+% % 降水量計算
+% precip_volume_avg = [];
+% precip_times = datetime.empty;
+% 
+% for t = 0:num_time_steps-1
+%     xrain_time = time_start + t * time_step;
+%     xrain_file = fullfile('C:\Users\murqk\Desktop\XRAIN山形\60mn\07', ...
+%         sprintf('202407%02d-%02d00.csv', day(xrain_time), hour(xrain_time)));
+% 
+%     if ~exist(xrain_file, 'file')
+%         fprintf('File %s does not exist. Skipping...\n', xrain_file);
+%         continue;
+%     end
+% 
+%     data = readmatrix(xrain_file);
+%     valid_data = data(data >= 0);
+% 
+%     if isempty(valid_data)
+%         fprintf('No valid data in file %s. Skipping...\n', xrain_file);
+%         continue;
+%     end
+% 
+%     valid_data_m = valid_data / 1000;
+%     valid_volume = valid_data_m * (250 * 250); % 体積[m³]
+% 
+%     precip_volume_avg(end+1) = mean(valid_volume);
+%     precip_times(end+1) = xrain_time;
+% end
 
 
 %% JTLNデータ読み取り
@@ -177,4 +237,4 @@ legend('雷の個数');
 grid on;
 
 % プロット保存
-saveas(gcf, fullfile('C:\Users\murqk\Desktop\plot\\plot\2024山形線状降水帯', '5つの指標サブプロット時系列_雷追加.png'));
+saveas(gcf, fullfile('C:\Users\murqk\Desktop\plot\\plot\2024山形線状降水帯', '5つの指標サブプロット時系列(範囲東北).png'));

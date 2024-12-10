@@ -1,8 +1,7 @@
-% 10分間隔で得られたデータなのでここでは10分の累積降水量をプロットしている。
-% データが届き次第変更しましょう
 
 
-% 10minutes
+
+% 60minutes
 addpath 'C:\Users\murqk\Desktop\EN\' %（変更）
 %% S1-1 --- Dataに雷についてのデータを保存 
 
@@ -26,8 +25,11 @@ cmap = jet;
 % XRAINデータの座標系（変更）
 latitude_range = [37, 41];
 longitude_range = [139, 142];
-rows = 1920;
-cols = 960;
+% rows = 1920;
+% cols = 960;
+
+rows = 480;  % 行数の更新 CSVファイルの大きさに対応させた。
+cols = 320;  % 列数の更新
 
 % データの緯度経度座標を計算
 latitudes = linspace(latitude_range(1), latitude_range(2), rows);
@@ -43,8 +45,8 @@ ylim_up=1920;% y軸下限(max1920)
 
 xlim1=139+(3*xlim_low/960);
 xlim2=139+(3*xlim_up/960);
-ylim1=41-(3*ylim_low/1920);
-ylim2=41-(3*ylim_up/1920);
+ylim1=41-(4*ylim_low/1920);
+ylim2=41-(4*ylim_up/1920);
 
 Rtable = table('Size', [0, 9], 'VariableTypes', {'datetime','double', 'double','double','double','double','double','double','double'}, ...
                      'VariableNames', {'JPTime','Time', 'num_IC','num_nCG','num_pCG','num_total','Total_Values','Total_Values2', 'Above_Threshold_Ratio'});
