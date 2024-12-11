@@ -4,7 +4,7 @@ lat_ERA5 = ncread('202407210729UTmodel_cape.nc', 'latitude');  % 緯度データ
 lon_ERA5 = ncread('202407210729UTmodel_cape.nc', 'longitude'); % 経度データ
 
 % 観測したい範囲の緯度・経度を指定
-lat_target = 37;  % 中心緯度
+lat_target = 39;  % 中心緯度
 lon_target = 140.5; % 中心経度
 lat_range = [lat_target - 2.0, lat_target + 2.0];
 lon_range = [lon_target - 1.5, lon_target + 1.5];
@@ -20,12 +20,12 @@ area_ERA5 = vert_length * horiz_length;  % 面積 (m²)
 
 % 降水量データを体積に変換（ERA5）
 precip_volume_ERA5 = precip_data_ERA5(lon_idx_ERA5, lat_idx_ERA5, :) * area_ERA5;  % m³
-precip_volume_avg_ERA5 = squeeze(sum(sum(precip_volume_ERA5, 1), 2)); % 時間ごとの平均
+precip_volume_sum_ERA5 = squeeze(sum(sum(precip_volume_ERA5, 1), 2)); % 時間ごとの領域内合計値
 
 
 
 % XRAINデータの処理
-precip_volume_avg_XRAIN = [];
+precip_volume_sum_XRAIN = [];
 precip_times_XRAIN = datetime.empty;
 
 % 時間軸の設定
@@ -62,21 +62,36 @@ for t = 0:num_time_steps-1
     end
     
     valid_volume = valid_data / 1000 * (250 * 250); % 体積[m³]
-    precip_volume_avg_XRAIN(end+1) = sum(valid_volume);
+    precip_volume_sum_XRAIN(end+1) = sum(valid_volume); % 時間ごとの領域内合計値
     precip_times_XRAIN(end+1) = xrain_time;
 end
 
-% プロット
+% 共通の時間軸を見つける
+[common_times, idx_ERA5, idx_XRAIN] = intersect(time_axis, precip_times_XRAIN);
+
+% 共通の時間軸に基づく降水量データを抽出
+common_precip_ERA5 = precip_volume_sum_ERA5(idx_ERA5);
+common_precip_XRAIN = precip_volume_sum_XRAIN(idx_XRAIN);
+
+% 相関係数を計算
+[R, P] = corrcoef(common_precip_ERA5, common_precip_XRAIN);
+
+% 相関係数とp値を表示
+fprintf('相関係数: %f\n', R(1,2));
+fprintf('p値: %f\n', P(1,2));
+
+% オプション：散布図と回帰線をプロット
 figure;
+scatter(common_precip_ERA5, common_precip_XRAIN, 'filled');
 hold on;
-plot(precip_times_XRAIN, precip_volume_avg_XRAIN, '-r', 'LineWidth', 1.5, 'DisplayName', 'XRAIN 降水量');
-plot(time_axis, precip_volume_avg_ERA5, '-b', 'LineWidth', 1.5, 'DisplayName', 'ERA5 降水量');
-ylabel('降水量 (m³)');
-xlabel('時間 (JST)');
-title('ERA5とXRAINの降水量比較');
-legend show;
+% 最小二乗回帰線
+fit = polyfit(common_precip_ERA5, common_precip_XRAIN, 1);
+plot(common_precip_ERA5, polyval(fit, common_precip_ERA5), '-r');
+xlabel('ERA5 降水量 (m³)');
+ylabel('XRAIN 降水量 (m³)');
+title(sprintf('ERA5とXRAINの降水量の相関係数: %.2f', R(1,2)));
 grid on;
 hold off;
 
-% プロットの保存
-saveas(gcf, fullfile('C:\Users\murqk\Desktop\plot\plot\2024山形線状降水帯\', 'ERA5_XRAIN_Comparison.png'));
+% 散布図の保存
+saveas(gcf, fullfile('C:\Users\murqk\Desktop\plot\plot\2024山形線状降水帯\', 'Correlation_Scatter_Plot.png'));

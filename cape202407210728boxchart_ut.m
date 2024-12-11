@@ -44,4 +44,4 @@ title('各日付ごとのCAPEの箱ひげ図 (指定範囲)');
 
 
 % プロットの保存や表示に関する処理
-    saveas(gcf, fullfile('C:\Users\murqk\Desktop\plot\07210729cape\', ['cape_boxcahart.png']));
+    saveas(gcf, fullfile('C:\Users\murqk\Desktop\plot\plot\2024山形線状降水帯\', ['cape_boxcahart.png']));

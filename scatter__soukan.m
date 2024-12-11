@@ -120,6 +120,7 @@
 % 必要なデータの読み込み
 cloud_file = '202407210729UTmodel_cloud.nc';
 cape_file = '202407210729UTmodel_cape.nc';
+rain_file = '202407210729UTmodel_rain.nc', 'tp');
 
 % 比湿データ
 q_data = ncread(cloud_file, 'q'); % 比湿データ

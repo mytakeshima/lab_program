@@ -4,7 +4,7 @@ lat_ERA5 = ncread('202407210729UTmodel_cape.nc', 'latitude');  % 緯度データ
 lon_ERA5 = ncread('202407210729UTmodel_cape.nc', 'longitude'); % 経度データ
 
 % 観測したい範囲の緯度・経度を指定
-lat_target = 37;  % 中心緯度
+lat_target = 39;  % 中心緯度
 lon_target = 140.5; % 中心経度
 lat_range = [lat_target - 2.0, lat_target + 2.0];
 lon_range = [lon_target - 1.5, lon_target + 1.5];
@@ -20,12 +20,12 @@ area_ERA5 = vert_length * horiz_length;  % 面積 (m²)
 
 % 降水量データを体積に変換（ERA5）
 precip_volume_ERA5 = precip_data_ERA5(lon_idx_ERA5, lat_idx_ERA5, :) * area_ERA5;  % m³
-precip_volume_avg_ERA5 = squeeze(sum(sum(precip_volume_ERA5, 1), 2)); % 時間ごとの平均
+precip_volume_sum_ERA5 = squeeze(sum(sum(precip_volume_ERA5, 1), 2)); % 時間ごとの領域内合計値
 
 
 
 % XRAINデータの処理
-precip_volume_avg_XRAIN = [];
+precip_volume_sum_XRAIN = [];
 precip_times_XRAIN = datetime.empty;
 
 % 時間軸の設定
@@ -62,15 +62,15 @@ for t = 0:num_time_steps-1
     end
     
     valid_volume = valid_data / 1000 * (250 * 250); % 体積[m³]
-    precip_volume_avg_XRAIN(end+1) = sum(valid_volume);
+    precip_volume_sum_XRAIN(end+1) = sum(valid_volume); % 時間ごとの領域内合計値
     precip_times_XRAIN(end+1) = xrain_time;
 end
 
 % プロット
 figure;
 hold on;
-plot(precip_times_XRAIN, precip_volume_avg_XRAIN, '-r', 'LineWidth', 1.5, 'DisplayName', 'XRAIN 降水量');
-plot(time_axis, precip_volume_avg_ERA5, '-b', 'LineWidth', 1.5, 'DisplayName', 'ERA5 降水量');
+plot(precip_times_XRAIN, precip_volume_sum_XRAIN, '-r', 'LineWidth', 1.5, 'DisplayName', 'XRAIN 降水量');
+plot(time_axis, precip_volume_sum_ERA5, '-b', 'LineWidth', 1.5, 'DisplayName', 'ERA5 降水量');
 ylabel('降水量 (m³)');
 xlabel('時間 (JST)');
 title('ERA5とXRAINの降水量比較');

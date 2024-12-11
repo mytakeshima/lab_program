@@ -43,10 +43,10 @@ xlim_up=960;% x軸上限(max960)
 ylim_low=0;% y軸上限(max0)
 ylim_up=1920;% y軸下限(max1920)
 
-xlim1=139+(3*xlim_low/960);
-xlim2=139+(3*xlim_up/960);
-ylim1=41-(4*ylim_low/1920);
-ylim2=41-(4*ylim_up/1920);
+xlim1=139.5+(1.0*xlim_low/960);
+xlim2=139.5+(1.0*xlim_up/960);
+ylim1=39.5-(1.0*ylim_low/1920);
+ylim2=39.5-(1.0*ylim_up/1920);
 
 Rtable = table('Size', [0, 9], 'VariableTypes', {'datetime','double', 'double','double','double','double','double','double','double'}, ...
                      'VariableNames', {'JPTime','Time', 'num_IC','num_nCG','num_pCG','num_total','Total_Values','Total_Values2', 'Above_Threshold_Ratio'});
@@ -105,7 +105,7 @@ for xrain_day = 20:29
         hold off;
 
         % プロットの保存
-        save_filename = fullfile('C:\Users\murqk\Desktop\plot\2024山形線状降水帯\XRAIN(LT)\', strcat('xrain_plot_', xrain_day_str, '_', xrain_h_str, '00.png'));
+        save_filename = fullfile('C:\Users\murqk\Desktop\plot\plot\2024山形線状降水帯\XRAIN(範囲山形LT)\', strcat('xrain_plot_', xrain_day_str, '_', xrain_h_str, '00.png'));
         saveas(gcf, save_filename);  % 画像をPNGファイルとして保存
     end
 end
