@@ -5,9 +5,9 @@ lon_ERA5 = ncread('202407210729UTmodel_cape.nc', 'longitude'); % 経度データ
 
 % 観測したい範囲の緯度・経度を指定
 lat_target = 39;  % 中心緯度
-lon_target = 140.5; % 中心経度
-lat_range = [lat_target - 2.0, lat_target + 2.0];
-lon_range = [lon_target - 1.5, lon_target + 1.5];
+lon_target = 140; % 中心経度
+lat_range = [38.5, 39.5];
+lon_range = [139.5, 140.5];
 
 % 指定した範囲のインデックスを取得
 lat_idx_ERA5 = find(lat_ERA5 >= lat_range(1) & lat_ERA5 <= lat_range(2));
@@ -37,8 +37,8 @@ time_axis = time_start + (0:num_time_steps-1) * time_step;
 % XRAINデータの読み込みと処理
 for t = 0:num_time_steps-1
     xrain_time = time_start + t * time_step;
-    xrain_file = fullfile('C:\Users\murqk\Desktop\XRAIN山形\60mn\07', ...
-        sprintf('202407%02d-%02d00.csv', day(xrain_time), hour(xrain_time)));
+    xrain_file = fullfile('E:\XRAIN累積降水量ver2(東北)\7\', ...
+        sprintf('202407%02d-%02d.csv', day(xrain_time), hour(xrain_time)));
     
     if ~exist(xrain_file, 'file')
         fprintf('File %s does not exist. Skipping...\n', xrain_file);
@@ -47,8 +47,8 @@ for t = 0:num_time_steps-1
     
     data = readmatrix(xrain_file);
     % 緯度経度の生成
-    latitudes = linspace(41, 37, 480);  % 北から南へ
-    longitudes = linspace(139, 142, 320); % 西から東へ
+    latitudes = linspace(41, 37, 1920);  % 北から南へ
+    longitudes = linspace(139, 142, 960); % 西から東へ
     
     % 対象範囲内のデータのみを抽出
     lat_indices = find(latitudes >= lat_range(1) & latitudes <= lat_range(2));
@@ -79,4 +79,4 @@ grid on;
 hold off;
 
 % プロットの保存
-saveas(gcf, fullfile('C:\Users\murqk\Desktop\plot\plot\2024山形線状降水帯\', 'ERA5_XRAIN_Comparison.png'));
+saveas(gcf, fullfile('C:\Users\murqk\Desktop\卒論結果まとめ\山形\XRAIN累積降水量使用\', 'ERA5_XRAIN_Comparison(範囲山形).png'));
